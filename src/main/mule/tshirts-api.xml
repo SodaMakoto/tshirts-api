@@ -3,7 +3,7 @@
     <http:listener-config name="tshirts-api-httpListenerConfig">
         <http:listener-connection host="0.0.0.0" port="8081" />
     </http:listener-config>
-    <apikit:config name="tshirts-api-config" api="resource::45538f78-a5de-47d3-8829-a5c258ce23b5:tshirts-api:2.0.2:raml:zip:tshirts-api.raml" outboundHeadersMapName="outboundHeaders" httpStatusVarName="httpStatus" />
+    <apikit:config name="tshirts-api-config" api="resource::45538f78-a5de-47d3-8829-a5c258ce23b5:tshirts-api:2.0.4:raml:zip:tshirts-api.raml" outboundHeadersMapName="outboundHeaders" httpStatusVarName="httpStatus" />
     <db:config name="Database_Config" doc:name="Database Config" doc:id="62a4d678-26d6-40fb-aa81-1d6f36f31b0c">
         <db:my-sql-connection host="localhost" port="3306" user="root" password="KCflash150" />
     </db:config>
@@ -226,9 +226,14 @@ Result: "Data Saved!"]]></ee:set-payload>
             </ee:message>
         </ee:transform>
     </flow>
-    <flow name="put:\inventory:application\json:tshirts-api-config">
-        <db:update doc:name="Update" doc:id="32f3a061-b9cf-4051-af12-b6a2f5e549f9" config-ref="Database_Config">
-			<db:sql ><![CDATA[UPDATE sys.inventory 
+    <flow name="put:\inventory\(productCode):application\json:tshirts-api-config">
+        <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core">
+            <ee:variables>
+                <ee:set-variable variableName="productCode">attributes.uriParams.'productCode'</ee:set-variable>
+            </ee:variables>
+        </ee:transform>
+        <db:update doc:name="Update" doc:id="fd1b0a61-e595-4386-81e9-3769e8cf6e0d" config-ref="Database_Config">
+            <db:sql><![CDATA[UPDATE sys.inventory 
 SET 
 ProductCode = :productCode,
 Size = :size,
@@ -236,17 +241,17 @@ Description = :description,
 Count = :count
 WHERE
 ProductCode = :productCode]]></db:sql>
-			<db:input-parameters ><![CDATA[#[%dw 2.0
+            <db:input-parameters><![CDATA[#[%dw 2.0
 output application/json
 ---
 {
-	productCode: payload.productCode,
+	productCode: attributes.uriParams.productCode,
 	size: payload.size,
 	count: payload.count,
 	description: payload.description
 }]]]></db:input-parameters>
-		</db:update>
-		<ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+        </db:update>
+        <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
             <ee:message>
                 <ee:set-payload><![CDATA[%dw 2.0
 output application/json
