@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<mule xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit" xmlns:db="http://www.mulesoft.org/schema/mule/db" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd  http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd">
+<mule xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:api-gateway="http://www.mulesoft.org/schema/mule/api-gateway" xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit" xmlns:db="http://www.mulesoft.org/schema/mule/db" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd  http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd http://www.mulesoft.org/schema/mule/api-gateway http://www.mulesoft.org/schema/mule/api-gateway/current/mule-api-gateway.xsd">
     <http:listener-config name="tshirts-api-httpListenerConfig">
         <http:listener-connection host="0.0.0.0" port="8081" />
     </http:listener-config>
-    <apikit:config name="tshirts-api-config" api="resource::45538f78-a5de-47d3-8829-a5c258ce23b5:tshirts-api:2.0.4:raml:zip:tshirts-api.raml" outboundHeadersMapName="outboundHeaders" httpStatusVarName="httpStatus" />
+    <apikit:config name="tshirts-api-config" api="resource::45538f78-a5de-47d3-8829-a5c258ce23b5:tshirts-api:2.0.5:raml:zip:tshirts-api.raml" outboundHeadersMapName="outboundHeaders" httpStatusVarName="httpStatus" />
     <db:config name="Database_Config" doc:name="Database Config" doc:id="62a4d678-26d6-40fb-aa81-1d6f36f31b0c">
         <db:my-sql-connection host="localhost" port="3306" user="root" password="KCflash150" />
     </db:config>
+    <api-gateway:autodiscovery apiId="17007138" ignoreBasePath="true" doc:name="API Autodiscovery" doc:id="3dd27ede-acb0-462e-b17d-7aa0c6144322" flowRef="tshirts-api-main" />
     <flow name="tshirts-api-main">
         <http:listener config-ref="tshirts-api-httpListenerConfig" path="/api/*">
             <http:response statusCode="#[vars.httpStatus default 200]">
@@ -227,11 +228,6 @@ Result: "Data Saved!"]]></ee:set-payload>
         </ee:transform>
     </flow>
     <flow name="put:\inventory\(productCode):application\json:tshirts-api-config">
-        <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core">
-            <ee:variables>
-                <ee:set-variable variableName="productCode">attributes.uriParams.'productCode'</ee:set-variable>
-            </ee:variables>
-        </ee:transform>
         <db:update doc:name="Update" doc:id="fd1b0a61-e595-4386-81e9-3769e8cf6e0d" config-ref="Database_Config">
             <db:sql><![CDATA[UPDATE sys.inventory 
 SET 
@@ -251,6 +247,11 @@ output application/json
 	description: payload.description
 }]]]></db:input-parameters>
         </db:update>
+        <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core">
+            <ee:variables>
+                <ee:set-variable variableName="productCode">attributes.uriParams.'productCode'</ee:set-variable>
+            </ee:variables>
+        </ee:transform>
         <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
             <ee:message>
                 <ee:set-payload><![CDATA[%dw 2.0

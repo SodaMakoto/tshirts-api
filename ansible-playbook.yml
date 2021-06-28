@@ -1,0 +1,33 @@
+---
+  - name: "Tshirts Api Ansible"
+    hosts: localhost
+    gather_facts: no
+    connection: local 
+    
+    vars: 
+      myPath: /tmp
+      myServer: EGL-Local
+      myToken: ""
+    
+    tasks: 
+      - name: Download 
+        get_url:
+          url: https://s3.amazonaws.com/new-mule-artifacts/mule-ee-distribution-standalone-4.3.0-20210119.zip
+          dest: '{{mypath}}'
+        
+      - name: Unzip file
+        unarchive:
+          src: '{{myPath}}\mule-ee-distribution-standalone-4.3.0-20210119.zip'
+          dest: '{{myPath}}\mule'
+          
+      - name: Start Runtime
+        win_command: '{{myPath}}\mule\bin\mule.exe'
+            
+      - name: Run AMC Setup
+        win_command: '{{myPath}}\mule\bin\amc_setup -H {{myToken}} {{myServer}}'
+                      
+         
+        
+
+    
+    
