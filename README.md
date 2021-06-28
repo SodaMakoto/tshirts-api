@@ -17,7 +17,7 @@ Item 1:
   
 
   - Ansible script: ansible-playbook.yml
-       To execute ansible playbook, run the following command with the derired parameters in your cmd:
+       -To execute ansible playbook, run the following command with the derired parameters in your cmd:
        ansible-playbook ansible-playbook.yml -e myServer="{{yourServerName}}" -e myToken="{{yourToken}}"
   
   - Jenkins Script: jankinsfile
